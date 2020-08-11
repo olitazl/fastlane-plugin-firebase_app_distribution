@@ -151,14 +151,22 @@ module Fastlane
         upload_status_response.release_id
       end
 
-      # Gets the upload status for the app release.
-      def get_upload_status(app_id, app_token)
+      # Gets the upload status for the specified upload_token
+      #
+      # args
+      #   app_id - Firebase App ID
+      #   upload_token - Url encoded token
+      #
+      # Returns an UploadStatusResponse
+      #
+      # Throws a user_error if app_id is invalid
+      def get_upload_status(app_id, upload_token)
         begin
-          response = connection.get(upload_status_url(app_id, app_token)) do |request|
+          response = connection.get(upload_status_url(app_id, upload_token)) do |request|
             request.headers["Authorization"] = "Bearer " + @auth_token
           end
         rescue Faraday::ResourceNotFound
-          UI.crash!("#{ErrorMessage::INVALID_APP_ID}: #{app_id}")
+          UI.user_error!("#{ErrorMessage::INVALID_APP_ID}: #{app_id}")
         end
         return UploadStatusResponse.new(response.body)
       end
